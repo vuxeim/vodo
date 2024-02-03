@@ -13,6 +13,6 @@ except PlatformError as err:
 
 
 getkey = __platform.getkey
-keys = __platform.keys
-key = keys # alias
-bang = __platform.bang
+# keys = __platform.keys
+# key = keys # alias
+# bang = __platform.bang
