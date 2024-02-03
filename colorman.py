@@ -12,6 +12,7 @@ def _WindowsInit():
     windll = LibraryLoader(WinDLL)
     _GetStdHandle = windll.kernel32.GetStdHandle
     _GetConsoleMode = windll.kernel32.GetConsoleMode
+    _SetConsoleMode = windll.kernel32.SetConsoleMode
     handle = _GetStdHandle(-11)
     if handle == -1:
         raise WinError()
