@@ -252,18 +252,18 @@ class TList:
         off = {'down': 1, 'up': -1}.get(drc, 0)
         nid = (self.index+off)%self.size
 
-        if nid in self.done and self.index not in self.done:
-            self.done.remove(nid)
-            self.done.add(self.index)
-        elif nid not in self.done and self.index in self.done:
-            self.done.remove(self.index)
-            self.done.add(nid)
+        # if nid in self.done and self.index not in self.done:
+        #     self.done.remove(nid)
+        #     self.done.add(self.index)
+        # elif nid not in self.done and self.index in self.done:
+        #     self.done.remove(self.index)
+        #     self.done.add(nid)
         if self.index-nid == self.size-1:
             self.items.insert(0, self.items.pop())
-            self.done = {x+1 if x not in () else x for x in self.done}
+            self.done = {x+1 if x not in (self.size-1,) else x for x in self.done}
         elif self.index-nid == -(self.size-1):
             self.items.append(self.items.pop(0))
-            self.done = {x-1 if x not in () else x for x in self.done}
+            self.done = {x-1 if x not in (0,) else x for x in self.done}
         else:
             neigh = self.items[nid]
             self.items[nid] = self.items[self.index]

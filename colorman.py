@@ -23,13 +23,8 @@ def _WindowsInit():
     success = _SetConsoleMode(handle, mode.value|4)
     if not success:
         raise WinError()
-
 if WinDLL is not None:
     _WindowsInit()
-
-# https://en.wikipedia.org/wiki/ANSI_escape_code
-class InvalidCode(Exception):
-    pass
 
 _names: dict[int, str] = {
     0: 'style',
@@ -37,20 +32,19 @@ _names: dict[int, str] = {
     4: 'back', 10: 'back',
 }
 
-class BUFFER:
+# https://en.wikipedia.org/wiki/ANSI_escape_code
 
+class BUFFER:
     ALTERNATIVE = '\x1b[?1049h'
     ALT = ALTERNATIVE
     NORMAL = '\x1b[?1049l'
 
 class CURSOR:
-
     BACK = '\x1b[%dD'
     FORWARD = '\x1b[%dC'
     UP = '\x1b[%dA'
     DOWN = '\x1b[%dB'
-
-    def __new__(cls, x: int = 1, y: int = 1) -> str:
+    def __new__(cls, x: int = 0, y: int = 0) -> str:
         return f'\x1b[{x};{y}H'
 
 class STYLE:
@@ -115,74 +109,66 @@ class BACK:
 
 class Palette:
 
+    RESET = '\x1b[0m'
+
     def __init__(self, *styles: int, fmt: str = "{}") -> None:
         self._format = fmt
         self._list: list[int] = sorted(styles)
-        self._style: tuple[str, str] = '\x1b[' + ';'.join(str(s) for s in self._list) + 'm', '\x1b[0m'
-        self._codes: dict[str, int] = {Palette._get_type(code): code for code in self._list}
+        self._style: str = str()
+        self.compile()
+
+    def compile(self) -> None:
+        self._style = '\x1b[' + ';'.join(str(s) for s in self._list) + 'm'
+
+    @property
+    def _codes(self) -> dict[str, int]:
+        return {__class__._get_type(code): code for code in self._list}
 
     @staticmethod
     def _get_type(code: int) -> str:
         prefix = (code - code%10) // 10
-        typee = _names.get(prefix)
-        if typee is None:
-            raise InvalidCode(f"Invalid type with prefix '{prefix}'")
-        return typee
+        return _names.get(prefix, 'none')
+
+    def combine(self, *other: int) -> list[int]:
+        combined = self._codes | {__class__._get_type(code): code for code in other}
+        return sorted(combined.values())
 
     def print(self, text: str) -> None:
         print(self(text))
 
     def __call__(self, text: str) -> str:
-        return self._format.format(text).join(self._style)
+        return self._style + self._format.format(text) + __class__.RESET
 
     def __ixor__(self, other: int) -> Self:
-        # NOTE may be bugged, no _codes redefined
         if other in self._list:
             self._list.remove(other)
         else:
             self._list.append(other)
-        self._style = '\x1b[' + ';'.join(str(s) for s in self._list) + 'm', '\x1b[0m'
+        self.compile()
         return self
 
     def __iadd__(self, other: int) -> Self:
-        _new = {Palette._get_type(other): other}
-        self._codes.update(_new)
-        self._list = list(self._codes.values())
-        self._style = '\x1b[' + ';'.join(str(s) for s in self._list) + 'm', '\x1b[0m'
+        self._list = self.combine(other)
+        self.compile()
         return self
 
     def __add__(self, other: int) -> Palette:
-        _new = {Palette._get_type(other): other}
-        _copy = self._codes.copy()
-        _copy.update(_new)
-        _list = _copy.values()
+        _list = self.combine(other)
         return self.__class__(*_list)
 
     def __or__(self, other: Palette) -> Palette:
-        _new = {Palette._get_type(code): code for code in other._list}
-        _copy = self._codes.copy()
-        _copy.update(_new)
-        _list = _copy.values()
+        _list = self.combine(*other._list)
         return self.__class__(*_list)
 
     def __len__(self) -> int:
         return len(self._list)
 
 class Color:
-    black = Palette(FORE.BLACK)
-    red = Palette(FORE.RED)
-    green = Palette(FORE.GREEN)
-    yellow = Palette(FORE.YELLOW)
-    blue = Palette(FORE.BLUE)
-    magenta = Palette(FORE.MAGENTA)
-    cyan = Palette(FORE.CYAN)
-    white = Palette(FORE.WHITE)
+    pass
 
-    lightblack = Palette(FORE.LIGHT.BLACK)
-    lightred = Palette(FORE.LIGHT.RED)
-    lightgreen = Palette(FORE.LIGHT.GREEN)
-    lightyellow = Palette(FORE.LIGHT.YELLOW)
-    lightblue = Palette(FORE.LIGHT.BLUE)
-    lightmagenta = Palette(FORE.LIGHT.MAGENTA)
-    lightcyan = Palette(FORE.LIGHT.CYAN)
-    lightwhite = Palette(FORE.LIGHT.WHITE)
+for color in dir(FORE):
+    if color.isupper() and color not in ('LIGHT', 'BRIGHT'):
+        light = 'LIGHT'+color
+        setattr(Color, color.lower(), Palette(getattr(FORE, color)))
+        setattr(Color, light.lower(), Palette(getattr(FORE.LIGHT, color)))
+
