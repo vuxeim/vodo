@@ -2,10 +2,8 @@ from __future__ import annotations
 from typing import Self
 
 try:
-    from ctypes import (
-            WinDLL, WinError,
-            LibraryLoader, byref
-            wintypes)
+    from ctypes import (WinDLL, WinError,
+        LibraryLoader, byref, wintypes)
 except ImportError:
     # Not running on Windows
     WinDLL = None
