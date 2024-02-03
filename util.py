@@ -22,15 +22,15 @@ def pprint(x: int, y: int, text: str) -> None:
     sys.stdout.flush()
 
 
+def eprint(text: str) -> None:
+    sys.stderr.write(text)
+    sys.stderr.flush()
+
+
 def nice_time(time) -> str:
     """ Strip milliseconds from time string """
     return str(time).split(".", maxsplit=1)[0]
 
-
-def eprint(text: str) -> None:
-    sys.stderr.write(text)
-    with open('stderr', 'wt') as f:
-        f.write(text)
 
 def clear_screen() -> None:
     sys.stdout.write("\x1b[2J")

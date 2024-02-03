@@ -75,7 +75,7 @@ class App:
         self.list.load(file)
 
     def run(self) -> None:
-        util.fprint(cm.BUFFER.ALT)
+        print(cm.BUFFER.ALT, end='')
         self.kb.cursor.hide()
         try:
             while self.running:
@@ -148,12 +148,12 @@ class App:
         self.screen.flush()
 
     def exit(self, e: BaseException | None = None) -> None:
-        util.fprint(cm.BUFFER.NORMAL)
+        print(cm.BUFFER.NORMAL, end='')
         self.kb.cursor.show()
         if isinstance(e, KeyboardInterrupt):
-            util.fprint(Color.lightgreen('^C ... Work saved\n'))
+            print(Color.lightgreen('^C ... Work saved'))
             return
-        util.fprint(Color.lightgreen('Work saved\n'))
+        print(Color.lightgreen('Work saved'))
 
 class Button:
 
@@ -197,7 +197,7 @@ class TList:
         self.done: set[int] = set()
 
     def load(self, file: str) -> None:
-        with open(file) as f:
+        with open(file, encoding='utf8') as f:
             self.items = [line.strip() for line in f.readlines() if line.strip()]
         self.size = len(self.items)
 

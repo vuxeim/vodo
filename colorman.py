@@ -1,6 +1,30 @@
 from __future__ import annotations
 from typing import Self
 
+try:
+    from ctypes import WinDLL, WinError, LibraryLoader, byref
+except ImportError:
+    # Not running on Windows
+    WinDLL = None
+
+def _WindowsInit():
+    windll = LibraryLoader(WinDLL)
+    _GetStdHandle = windll.kernel32.GetStdHandle
+    _GetConsoleMode = windll.kernel32.GetConsoleMode
+    handle = _GetStdHandle(-11)
+    if handle == -1:
+        raise WinError()
+    mode = wintypes.DWORD()
+    success = _GetConsoleMode(handle, byref(mode))
+    if not success:
+        raise WinError()
+    success = _SetConsoleMode(handle, mode.value|4)
+    if not success:
+        raise WinError()
+
+if WinDLL is not None:
+    _WindowsInit()
+
 # https://en.wikipedia.org/wiki/ANSI_escape_code
 class InvalidCode(Exception):
     pass
