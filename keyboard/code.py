@@ -1,6 +1,9 @@
 import sys
 import string
 
+class UnsupportedKey(Exception):
+    pass
+
 class UnknownKey(Exception):
     pass
 
@@ -64,11 +67,16 @@ class Alias:
 class Windows:
     ESC = '\x1b'
     ENTER = '\r'
+    CTRL_ENTER = '\n'
     BACKSPACE = '\x08'
-    LEFT = '\xe0K'
-    RIGHT = '\xe0M'
     UP = '\xe0H'
     DOWN = '\xe0P'
+    LEFT = '\xe0K'
+    RIGHT = '\xe0M'
+    SHIFT_UP = UnsupportedKey
+    SHIFT_DOWN = UnsupportedKey
+    SHIFT_LEFT = UnsupportedKey
+    SHIFT_RIGHT = UnsupportedKey
     INSERT = '\xe0R'
     DELETE = '\xe0S'
     PAGE_UP = '\xe0I'
