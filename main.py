@@ -1,3 +1,4 @@
+#https://stackoverflow.com/questions/35772001/how-to-handle-a-signal-sigint-on-a-windows-os-machine
 from __future__ import annotations
 from time import sleep, perf_counter_ns
 
@@ -274,7 +275,10 @@ class TList:
 
 def main():
     app = App()
-    app.load('tasks')
+    try:
+        app.load('/vodo/tasks')
+    except FileNotFoundError:
+        app.load('tasks')
     app.run()
 
 if __name__ == "__main__":
