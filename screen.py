@@ -19,9 +19,10 @@ class Screen:
     
     def write(self, pos: Vec2, content: str) -> None:
         text = Screen.PATTERN.sub('', content)
-        code = next(Screen.PATTERN.finditer(content)).group()
+        code = Screen.PATTERN.findall(content)
         self._buf.write(pos, text)
-        self._buf.color(pos, code, len(text))
+        if code:
+            self._buf.color(pos, code.pop(0), len(text))
     
     def update(self) -> None:
         new_size = Vec2(*get_terminal_size())

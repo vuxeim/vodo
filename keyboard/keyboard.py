@@ -38,13 +38,13 @@ class Keyboard(threading.Thread):
     def accumulate(self) -> None:
         self.capture = True
 
-    def collect(self, delimeter: str = key.ENTER) -> str | None:
-        if not self._buffer.endswith(delimeter):
-            return None
+    def collect(self, delimeter: str | None = None) -> str | None:
+        while delimeter is not None and not self._buffer.endswith(delimeter):
+            yield
         buf = self._buffer
         self._buffer = ""
         self.capture = False
-        return buf
+        yield buf
 
     def stop(self) -> None:
         """ Safely kills the keyboard thread """

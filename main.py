@@ -6,6 +6,8 @@ import colorman as cm
 from colorman import Color
 from keyboard import Keyboard, key
 from screen import Screen
+from list import TList
+from widget import Button, Text
 import util
 
 class Fun:
@@ -56,6 +58,7 @@ class App:
                 Button(key.E, '(e) Edit', (47, 0)),
                 Button(key.O, '(o) Load', (57, 0)),
                 Button(key.Q, '(q) Quit', (67, 0)),
+                Button(key.ESC, '(esc) Quit', (77, 0)),
 
                 Button(key.K, '(k) Up', (0, 1)),
                 Button(key.J, '(j) Down', (8, 1)),
@@ -131,7 +134,6 @@ class App:
                 btn.counter = 0
                 btn.color = Color.lightwhite
 
-        self.text.text = sorted(self.list.done)
         self.text.counter += self.tps+self.delta
         if self.text.blink:
             if self.text.counter > self.text.blink_speed * 1e9:
@@ -156,129 +158,9 @@ class App:
             return
         print(Color.lightgreen('Work saved'))
 
-class Button:
-
-    def __init__(self, key: str, name: str, pos: tuple[int, int]) -> None:
-        self.key = key
-        self.name = name
-        self.color = Color.lightwhite
-        self.pos = pos
-        self.counter = 0
-
-    def render(self, screen: Screen) -> None:
-        screen.write(self.pos, self.color(self.name))
-
-class Text:
-
-    def __init__(self, text: str, pos: tuple[int, int]) -> None:
-        self.text = text
-        self.color = cm.Palette(cm.FORE.MAGENTA)
-        self.pos = pos
-        self.counter = 0
-        self.blink = False
-        self.blink_speed = 1
-
-    def toggle_color(self) -> None:
-        self.color ^= cm.STYLE.BOLD
-
-    def render(self, screen: Screen) -> None:
-        screen.write(self.pos, self.color(self.text))
-
-class TList:
-
-    ACTIVE = cm.Palette(cm.FORE.BLACK, cm.BACK.WHITE)
-    DONE = cm.Palette(cm.FORE.GREEN)
-    NORMAL = cm.Palette(cm.FORE.YELLOW)
-
-    def __init__(self, pos: tuple[int, int]) -> None:
-        self.items: list[str] = []
-        self.index: int = 0
-        self.pos: tuple[int, int] = pos
-        self.size: int = 0
-        self.done: set[int] = set()
-
-    def load(self, file: str) -> None:
-        with open(file, encoding='utf8') as f:
-            self.items = [line.strip() for line in f.readlines() if line.strip()]
-        self.size = len(self.items)
-
-    def render(self, screen: Screen) -> None:
-        x,y = self.pos
-        for idx, item in enumerate(self.items):
-            text = '[{}] {}'.format('x' if idx in self.done else ' ', item)
-            screen.write((x, y), self._get_color(idx)(text))
-            y += 1
-
-    def _get_color(self, index: int):
-        if index == self.index:
-            if index in self.done:
-                return TList.DONE | TList.ACTIVE
-            return TList.ACTIVE
-        if index in self.done:
-            return TList.DONE
-        return TList.NORMAL
-
-    def toggle(self, value: bool | None = None) -> None:
-        if value is not None:
-            if value:
-                self.done.add(self.index)
-            else:
-                self.done.discard(self.index)
-            return
-
-        if self.index in self.done:
-            self.done.remove(self.index)
-            return
-        self.done.add(self.index)
-
-    def rotold(self, drc: str) -> None:
-        off = {'down': 1, 'up': -1}.get(drc, 0)
-        nid = self.index+off
-        if nid < 0 or nid > self.size-1:
-            return
-
-        if nid in self.done and self.index not in self.done:
-            self.done.remove(nid)
-            self.done.add(self.index)
-        elif nid not in self.done and self.index in self.done:
-            self.done.remove(self.index)
-            self.done.add(nid)
-
-        neigh = self.items[nid]
-        self.items[nid] = self.items[self.index]
-        self.items[self.index] = neigh
-        self.index += off
-
-    def rot(self, drc: str) -> None:
-        off = {'down': 1, 'up': -1}.get(drc, 0)
-        nid = (self.index+off)%self.size
-
-        # if nid in self.done and self.index not in self.done:
-        #     self.done.remove(nid)
-        #     self.done.add(self.index)
-        # elif nid not in self.done and self.index in self.done:
-        #     self.done.remove(self.index)
-        #     self.done.add(nid)
-        if self.index-nid == self.size-1:
-            self.items.insert(0, self.items.pop())
-            self.done = {x+1 if x not in (self.size-1,) else x for x in self.done}
-        elif self.index-nid == -(self.size-1):
-            self.items.append(self.items.pop(0))
-            self.done = {x-1 if x not in (0,) else x for x in self.done}
-        else:
-            neigh = self.items[nid]
-            self.items[nid] = self.items[self.index]
-            self.items[self.index] = neigh
-
-        self.index = (self.index+off)%self.size
-
-
 def main():
     app = App()
-    try:
-        app.load('/vodo/tasks')
-    except FileNotFoundError:
-        app.load('tasks')
+    app.load('tasks')
     app.run()
 
 if __name__ == "__main__":
