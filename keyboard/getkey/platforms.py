@@ -78,16 +78,11 @@ class PlatformUnix(Platform):
     def context(self):
         fd = self.fileno()
         old_settings = self.termios.tcgetattr(fd)
-        assert old_settings[3] & 8
         self.tty.setcbreak(fd)
         try:
             yield
         finally:
-            old_settings[3] |= 8
-            assert old_settings[3] & 8
             self.termios.tcsetattr(fd, self.termios.TCSADRAIN, old_settings)
-            old_settings = self.termios.tcgetattr(fd)
-            assert old_settings[3] & 8
 
     def getchars(self, blocking=True):
         with self.context():
