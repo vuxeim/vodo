@@ -1,3 +1,4 @@
+# https://en.wikipedia.org/wiki/ANSI_escape_code
 from __future__ import annotations
 from typing import Self
 
@@ -32,14 +33,14 @@ _names: dict[int, str] = {
     4: 'back', 10: 'back',
 }
 
-# https://en.wikipedia.org/wiki/ANSI_escape_code
-
 class BUFFER:
     ALTERNATIVE = '\x1b[?1049h'
     ALT = ALTERNATIVE
     NORMAL = '\x1b[?1049l'
 
 class CURSOR:
+    HIDE = '\x1b[?25l'
+    SHOW = '\x1b[?25h'
     BACK = '\x1b[%dD'
     FORWARD = '\x1b[%dC'
     UP = '\x1b[%dA'

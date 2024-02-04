@@ -77,7 +77,7 @@ class App:
 
     def run(self) -> None:
         print(cm.BUFFER.ALT, end='')
-        self.kb.cursor.hide()
+        print(cm.CURSOR.HIDE, end='')
         try:
             while self.running:
                 self.screen.clear()
@@ -150,7 +150,7 @@ class App:
 
     def exit(self, e: BaseException | None = None) -> None:
         print(cm.BUFFER.NORMAL, end='')
-        self.kb.cursor.show()
+        print(cm.CURSOR.SHOW, end='')
         if isinstance(e, KeyboardInterrupt):
             print(Color.lightgreen('^C ... Work saved'))
             return

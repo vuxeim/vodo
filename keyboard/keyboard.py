@@ -3,21 +3,10 @@ import threading
 from . import getkey
 from .code import key
 
-class _Cursor:
-
-    @staticmethod
-    def hide():
-        print('\x1b[?25l', end='')
-
-    @staticmethod
-    def show():
-        print('\x1b[?25h', end='')
-
 class Keyboard(threading.Thread):
 
     def __init__(self):
         super().__init__()
-        self.cursor: type[_Cursor] = _Cursor
         self._buffer: str = ""
         self.capture: bool = False
         self._pressed: dict[str, bool] = {}
@@ -48,12 +37,10 @@ class Keyboard(threading.Thread):
 
     def accumulate(self) -> None:
         self.capture = True
-        self.cursor.show()
 
     def collect(self, delimeter: str = key.ENTER) -> str | None:
         if not self._buffer.endswith(delimeter):
             return None
-        self.cursor.hide()
         buf = self._buffer
         self._buffer = ""
         self.capture = False
@@ -62,4 +49,3 @@ class Keyboard(threading.Thread):
     def stop(self) -> None:
         """ Safely kills the keyboard thread """
         self._running = False
-        self.cursor.show()
