@@ -14,7 +14,7 @@ class Platform:
 
     def getkey(self):
         buffer = ''
-        for c in self.getchars():
+        for c in self.getchars(blocking=True):
             buffer += c
             if buffer not in self.keys.escapes:
                 break
@@ -23,32 +23,49 @@ class Platform:
             raise KeyboardInterrupt
         return keycode
 
+    def getchars(self, blocking=True):
+        char = self.getchar(blocking=blocking)
+        while char:
+            yield char
+            char = self.getchar(blocking=False)
+
+    def getchar(self, blocking=True):
+        for char in self.getchars(bloking=blocking):
+            return char
+        return None
+
 class PlatformUnix(Platform):
     KEYS = 'unix'
 
     def __init__(self):
         super().__init__()
+        from select import select
         import termios
-        self.termios = termios
         import tty
+        self.select = select
+        self.termios = termios
         self.tty = tty
-        self._fd = sys.stdin.fileno()
-        self._decoder = codecs.getincrementaldecoder(sys.stdin.encoding)()
-
-    def getchars(self):
-        yield self.read()
-
-    def read(self):
-        return self._decoder.decode(os.read(self._fd, 1))
+        self.stdin = sys.stdin
+        self.fd = self.stdin.fileno()
+        self.decoder = codecs.getincrementaldecoder(self.stdin.encoding)()
 
     @contextmanager
     def context(self):
-        settings = self.termios.tcgetattr(self._fd)
-        self.tty.setcbreak(self._fd)
+        settings = self.termios.tcgetattr(self.fd)
+        self.tty.setcbreak(self.fd)
         try:
             yield
         finally:
-            self.termios.tcsetattr(self._fd, termios.TCSADRAIN, settings)
+            self.termios.tcsetattr(self.fd, self.termios.TCSADRAIN, settings)
+
+    def getchars(self, blocking=True):
+        if blocking:
+            yield self.read()
+        while self.select([self.fd], [], [], 0)[0]:
+            yield self.read()
+
+    def read(self):
+        return self.decoder.decode(os.read(self.fd, 1))
 
 class PlatformWindows(Platform):
     KEYS = 'windows'
