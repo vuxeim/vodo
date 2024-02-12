@@ -16,6 +16,7 @@ class Layout:
         self.buttons: list[Button] = ((
                 Button(key.N, '(n) New'),
                 Button(key.E, '(e) Edit'),
+                Button(key.D, '(d) Delete'),
                 Button(key.O, '(o) Load'),
                 Button(key.Q, '(q) Quit'),
                 ),

@@ -45,7 +45,7 @@ class Box:
 class Editor:
 
     def __init__(self, pos: Vec2 = Vec2.new()):
-        self.color = cm.Palette(cm.FORE.CYAN)
+        self.color = cm.Color.lightblack
         self.pos: Vec2 = pos
         self.content: list[str] = []
         self.index = self.last_index

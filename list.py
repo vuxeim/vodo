@@ -62,8 +62,10 @@ class TList:
     NORMAL = cm.Palette(cm.FORE.YELLOW)
 
     def __init__(self, pos: Vec2) -> None:
+        self.file: str = ""
         self.editing = False
-        self.items: _List[_Entry]
+        self.items: _List[_Entry] = _List()
+        self.prev_index: int = 0
         self.index: int = 0
         self.counter = 0
         self.pos: Vec2 = pos
@@ -71,15 +73,29 @@ class TList:
         self.done: set[int] = set()
 
     def calculate(self) -> None:
-        self.size.x = max(len(entry.text) for entry in self.items)
+        self.size = Vec2(max((len(entry.text) for entry in self.items) or 1), len(self.items))
 
     def current(self) -> _Entry:
         return self.items[self.index]
 
     def load(self, file: str) -> None:
+        self.file = file
         with open(file, encoding='utf8') as f:
-            self.items = _List(_Entry(line, done=False) for line in f.readlines() if line.strip())
+            while line := f.readline():
+                if not line:
+                    continue
+                done, text = line.split(';', maxsplit=1)
+                self.items.append(_Entry(text, done=bool(done)))
         self.size.y = len(self.items)
+
+    def new(self) -> None:
+        self.prev_index = self.index
+        self.items.append(_Entry('', done=False))
+        self.index = self.items.last_index
+
+    def delete(self) -> None:
+        self.items.pop(self.index)
+        self.index = max(0, self.index-1)
 
     def render(self, screen: Screen) -> None:
         x,y = self.pos.as_tuple()
@@ -87,6 +103,10 @@ class TList:
             if not self.editing or idx != self.index:
                 screen.write(Vec2(x, y), self._get_color(item, idx)(item.compose()))
             y += 1
+
+    def save(self) -> None:
+        with open(self.file, 'wt') as f:
+            f.write('\n'.join(('x'*entry.done)+';'+entry.text for entry in self.items))
 
     def _get_color(self, element: _Entry, index: int):
         if index == self.index:

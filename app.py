@@ -15,7 +15,7 @@ from util import fprint
 
 class App:
 
-    TARGET_TPS: int = 60
+    TARGET_TPS: int = 30
 
     def __init__(self) -> None:
         self.kb = Keyboard()
@@ -56,17 +56,19 @@ class App:
 
     def process(self) -> None:
 
+        # Recalculate sizes
         self.layout.calculate()
         self.list.calculate()
 
+        # Remove current entry if the entry is empty
+        if not self.kb.capture:
+            if self.list.items[self.list.index].text == '':
+                self.list.delete()
+
+        # Update editor position and cursor position
         self.editor.pos = self.list.pos+Vec2(4, self.list.index)
         pos = self.editor.pos+Vec2(self.editor.index+1, 1)
         fprint(cm.CURSOR(*pos.as_tuple()))
-
-        self.list.pos = self.screen.size//2 - self.list.size//2
-
-        self.box.pos = self.list.pos - Vec2(1, 1)
-        self.box.size = self.list.size + Vec2(6, 2)
 
         # Animate button press
         for btn in self.buttons:
@@ -81,6 +83,7 @@ class App:
 
         # Handle input mode
         if self.kb.capture:
+            self.list.size.x = max(self.list.size.x, self.editor.index)
             for char in self.kb.fetch():
                 if char == key.ENTER:
                     self.handler.functions.normal()
@@ -91,6 +94,13 @@ class App:
                     self.list.editing = False
                 else:
                     self.editor.handle(char)
+
+        # Center the todo list
+        self.list.pos = self.screen.size//2 - self.list.size//2
+
+        # Update the todo list border
+        self.box.pos = self.list.pos - Vec2(2, 1)
+        self.box.size = self.list.size + Vec2(8, 2)
 
         # Handle normal mode
         self.handler.react()
@@ -112,6 +122,7 @@ class App:
         self.running = False
 
     def exit(self, e: BaseException | None = None) -> None:
+        self.list.save()
         fprint(cm.BUFFER.NORMAL)
         fprint(cm.CURSOR.SHOW)
         if isinstance(e, KeyboardInterrupt):
