@@ -46,7 +46,7 @@ class CURSOR:
     UP = '\x1b[%dA'
     DOWN = '\x1b[%dB'
     def __new__(cls, x: int = 0, y: int = 0) -> str:
-        return f'\x1b[{x};{y}H'
+        return f'\x1b[{y};{x}H'
 
 class STYLE:
     RESET = 0

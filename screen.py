@@ -52,7 +52,7 @@ class Buffer:
     
     def print_to_stdout(self) -> None:
         for num, line in enumerate(self._lines, start=1):
-            util.pprint(1, num, line.compile())
+            util.pprint(0, num, line.compile())
     
     def resize_by(self, diff: Vec2) -> None:
         

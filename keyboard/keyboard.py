@@ -7,7 +7,7 @@ class Keyboard(threading.Thread):
 
     def __init__(self):
         super().__init__()
-        self._buffer: str = ""
+        self._buffer: list[Key] = []
         self.capture: bool = False
         self._pressed: dict[str, bool] = {}
         self._running: bool = True
@@ -19,7 +19,7 @@ class Keyboard(threading.Thread):
             while self._running:
                 key = getkey.getkey()
                 if self.capture:
-                    self._buffer += key
+                    self._buffer.append(key)
                 else:
                     self._set_pressed(key)
 
@@ -41,9 +41,8 @@ class Keyboard(threading.Thread):
         self.capture = True
 
     def fetch(self) -> str:
-        buf = self._buffer
-        self._buffer = ""
-        return buf
+        while self._buffer:
+            yield self._buffer.pop(0)
 
     def normal_mode(self) -> None:
         self.capture = False

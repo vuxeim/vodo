@@ -6,6 +6,7 @@ if TYPE_CHECKING:
 
 import colorman as cm
 from vector import Vec2
+from keyboard import key
 
 class Button:
 
@@ -32,18 +33,41 @@ class Box:
             screen.write(self.pos+Vec2(self.size.x-1, i), '|')
         screen.write(self.pos+Vec2(0, self.size.y-1), '-'*self.size.x)
 
-class Text:
+class Editor:
 
-    def __init__(self, text: str):
-        self.text = text
-        self.color = cm.Palette(cm.FORE.MAGENTA)
-        self.pos: Vec2 = Vec2.new()
-        self.counter = 0
-        self.blink = True
-        self.blink_speed = 1
+    def __init__(self, pos: Vec2 = Vec2.new()):
+        self.color = cm.Palette(cm.FORE.CYAN)
+        self.pos: Vec2 = pos
+        self.content: list[str] = []
+        self.index = self.last_index
 
-    def toggle_color(self) -> None:
-        self.color ^= cm.STYLE.BOLD
+    @property
+    def last_index(self) -> int:
+        return max(0, len(self.content)-1)
+
+    @property
+    def text(self):
+        return "".join(self.content)
+
+    def handle(self, char: Key) -> None:
+        if char == key.BACKSPACE:
+            if self.index > 0:
+                self.content.pop(self.index-1)
+                self.index -= 1
+        elif char == key.DELETE:
+            if self.index < self.last_index:
+                self.content.pop(self.index)
+        elif char == key.LEFT:
+            self.index = max(0, self.index-1)
+        elif char == key.RIGHT:
+            self.index = min(self.last_index, self.index+1)
+        elif char.isprintable():
+            self.content.insert(self.index, char)
+            self.index+=1
+
+    def clear(self) -> None:
+        self.content = []
+        self.index = self.last_index
 
     def render(self, screen: Screen) -> None:
         screen.write(self.pos, self.color(self.text))
