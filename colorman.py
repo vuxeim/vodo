@@ -50,19 +50,20 @@ class CURSOR:
 
 class STYLE:
     RESET = 0
-    NONE = 0
+    NONE = RESET
     BOLD = 1
     DIM = 2
     ITALIC = 3
     UNDERLINE = 4
     SLOW_BLINK = 5
+    BLINK = SLOW_BLINK
     FAST_BLINK = 6
     INVERT = 7
-    REVERSE = 7
+    REVERSE = INVERT
     HIDE = 8
     STRIKE = 9
     DOUBLE_UNDERLINE = 21
-    DUNDER = 21
+    DUNDER = DOUBLE_UNDERLINE
 
 class FORE:
     BLACK = 30

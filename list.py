@@ -60,17 +60,18 @@ class TList:
     ACTIVE = cm.Palette(cm.FORE.BLACK, cm.BACK.WHITE)
     DONE = cm.Palette(cm.FORE.GREEN)
     NORMAL = cm.Palette(cm.FORE.YELLOW)
-    EDIT = cm.Palette(cm.FORE.MAGENTA, cm.STYLE.UNDERLINE)
 
     def __init__(self, pos: Vec2) -> None:
         self.editing = False
-        self.edit_text = ""
         self.items: _List[_Entry]
         self.index: int = 0
         self.counter = 0
         self.pos: Vec2 = pos
-        self.size: int = 0
+        self.size: Vec2 = Vec2.new()
         self.done: set[int] = set()
+
+    def calculate(self) -> None:
+        self.size.x = max(len(entry.text) for entry in self.items)
 
     def current(self) -> _Entry:
         return self.items[self.index]
@@ -78,24 +79,17 @@ class TList:
     def load(self, file: str) -> None:
         with open(file, encoding='utf8') as f:
             self.items = _List(_Entry(line, done=False) for line in f.readlines() if line.strip())
-        self.size = len(self.items)
-
-    def edit(self) -> None:
-        self.editing = True
-
-    def save_edit(self) -> None:
-        self.editing = False
+        self.size.y = len(self.items)
 
     def render(self, screen: Screen) -> None:
         x,y = self.pos.as_tuple()
         for idx, item in enumerate(self.items):
-            screen.write(Vec2(x, y), self._get_color(item, idx)(item.compose()))
+            if not self.editing or idx != self.index:
+                screen.write(Vec2(x, y), self._get_color(item, idx)(item.compose()))
             y += 1
 
     def _get_color(self, element: _Entry, index: int):
         if index == self.index:
-            if self.editing:
-                return TList.EDIT
             return TList.ACTIVE
         if element.done:
             return TList.DONE
@@ -109,7 +103,7 @@ class TList:
     def rot(self, drc: str) -> None:
         assert drc in (_List.DOWN, _List.UP)
         off = {_List.DOWN: 1, _List.UP: -1}.get(drc)
-        new_index = (self.index+off)%self.size
+        new_index = (self.index+off)%self.size.y
 
         if self.index == self.items.last_index and new_index == 0:
             self.items.shift('down')

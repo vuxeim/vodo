@@ -18,8 +18,10 @@ class Vec2:
     def __repr__(self) -> str:
         return f'{__name__}.{__class__.__name__}(x={self.x}, y={self.y})'
 
-    def __mul__(self, other: Vec2) -> Vec2:
-        return Vec2(self.x * other.x, self.y * other.y)
+    def __mul__(self, other: int) -> Vec2:
+        if isinstance(other, Vec2):
+            return NotImplemented
+        return Vec2(self.x * other, self.y * other)
 
     def __add__(self, other: Vec2) -> Vec2:
         return Vec2(self.x + other.x, self.y + other.y)
@@ -27,10 +29,12 @@ class Vec2:
     def __sub__(self, other: Vec2) -> Vec2:
         return Vec2(self.x - other.x, self.y - other.y)
 
-    def __truediv__(self, other: Vec2) -> Vec2:
-        return Vec2(self.x // other.x, self.y // other.y)
+    def __floordiv__(self, other: int) -> Vec2:
+        if isinstance(other, Vec2):
+            return NotImplemented
+        return Vec2(self.x // other, self.y // other)
 
-    __div__ = __truediv__
+    __truediv__ = __floordiv__
 
     def __imul__(self, other: Vec2) -> Vec2:
         self.x *= other.x

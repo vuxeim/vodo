@@ -9,13 +9,13 @@ from screen import Screen
 from handler import Handler
 from ui import Layout
 from list import TList
-from widget import Button, Editor
+from widget import Button, Editor, Box
 from vector import Vec2
 from util import fprint
 
 class App:
 
-    TARGET_TPS: int = 20
+    TARGET_TPS: int = 60
 
     def __init__(self) -> None:
         self.kb = Keyboard()
@@ -24,6 +24,7 @@ class App:
         self.layout = Layout(self.screen.size)
         self.list: TList = TList(Vec2(2, 6))
         self.editor = Editor()
+        self.box = Box()
         self.buttons: list[Button] = self.layout.get_buttons()
         self.running = True
         self.tps: int = int(1/self.TARGET_TPS*1e9)
@@ -56,6 +57,16 @@ class App:
     def process(self) -> None:
 
         self.layout.calculate()
+        self.list.calculate()
+
+        self.editor.pos = self.list.pos+Vec2(4, self.list.index)
+        pos = self.editor.pos+Vec2(self.editor.index+1, 1)
+        fprint(cm.CURSOR(*pos.as_tuple()))
+
+        self.list.pos = self.screen.size//2 - self.list.size//2
+
+        self.box.pos = self.list.pos - Vec2(1, 1)
+        self.box.size = self.list.size + Vec2(6, 2)
 
         # Animate button press
         for btn in self.buttons:
@@ -64,31 +75,36 @@ class App:
                 if self.kb.is_pressed(btn.key, once=False):
                     btn.counter = 0
                     btn.color = Color.green
-            if btn.counter > 0.25 * 1e9:
+            if btn.counter > 0.26 * 1e9:
                 btn.counter = 0
-                btn.color = Color.lightwhite
+                btn.color = Color.lightblack
 
         # Handle input mode
         if self.kb.capture:
             for char in self.kb.fetch():
                 if char == key.ENTER:
                     self.handler.functions.normal()
+                    self.list.editing = False
+                    self.list.current().text = self.editor.text
                 elif char == key.ESC:
                     self.handler.functions.normal()
+                    self.list.editing = False
                 else:
                     self.editor.handle(char)
-
-        self.editor.pos = Vec2(0, self.screen.size.y-1)
-        pos = self.editor.pos+Vec2(self.editor.index+1, 1)
-        fprint(cm.CURSOR(*pos.as_tuple()))
 
         # Handle normal mode
         self.handler.react()
 
+        # Consume all pressed button events
+        for btn in self.buttons:
+            _ = self.kb.is_pressed(btn.key)
+
     def render(self) -> None:
         self.layout.render(self.screen)
         self.list.render(self.screen)
-        self.editor.render(self.screen)
+        if self.kb.capture:
+            self.editor.render(self.screen)
+        self.box.render(self.screen)
         self.screen.update()
         self.screen.flush()
 

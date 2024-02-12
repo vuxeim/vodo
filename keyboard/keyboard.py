@@ -25,6 +25,7 @@ class Keyboard(threading.Thread):
 
     def clear(self) -> None:
         self._pressed.clear()
+        self._buffer = []
 
     def _set_pressed(self, key) -> None:
         self._pressed[key] = True
@@ -39,6 +40,7 @@ class Keyboard(threading.Thread):
 
     def input_mode(self) -> None:
         self.capture = True
+        self.clear()
 
     def fetch(self) -> str:
         while self._buffer:
@@ -46,7 +48,7 @@ class Keyboard(threading.Thread):
 
     def normal_mode(self) -> None:
         self.capture = False
-        self._buffer = ""
+        self.clear()
 
     def stop(self) -> None:
         """ Safely kills the keyboard thread """

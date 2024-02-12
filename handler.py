@@ -48,7 +48,7 @@ class _Functions:
 
     def move_down(self):
         index = self.app.list.index+1
-        size = self.app.list.size-1
+        size = self.app.list.items.last_index
         self.app.list.index = min(index, size)
 
     def move_up(self):
@@ -77,9 +77,12 @@ class _Functions:
     def input(self):
         self.app.kb.input_mode()
         self.app.editor.clear()
+        self.app.list.editing = True
+        self.app.editor.load(self.app.list.current().text)
         fprint(cm.CURSOR.SHOW)
 
     def normal(self):
         self.app.kb.normal_mode()
+        self.app.list.editing = False
         fprint(cm.CURSOR.HIDE)
 

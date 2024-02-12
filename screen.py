@@ -79,16 +79,17 @@ class _BufLine:
         self._len = length
         self._data: str = ' '*self._len
         self._colors: dict[int, code] = {}
+        self._resets: dict[int, bool] = {}
     
     def __setitem__(self, index: int, value: str):
         self._data = self._data[:index] + value + self._data[index+len(value):]
 
     def color(self, code: str, offset: int, size: int) -> None:
         self._colors[offset] = code
-        self._colors[offset+size] = '\x1b[0m'
+        self._resets[offset+size-1] = True
 
     def compile(self) -> str:
-        return ''.join(self._colors.get(idx, '') + char for idx, char in enumerate(self._data))
+        return ''.join(self._colors.get(idx, '') + char + '\x1b[0m'*self._resets.get(idx, False) for idx, char in enumerate(self._data))
     
     def resize_by(self, diff: int) -> None:
 
@@ -106,3 +107,4 @@ class _BufLine:
     def clear(self) -> None:
         self._data = ' '*self._len
         self._colors.clear()
+        self._resets.clear()
