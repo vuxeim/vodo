@@ -1,3 +1,4 @@
+from __future__ import annotations
 import sys
 import string
 
@@ -107,12 +108,15 @@ class Key:
 
     def __init__(self) -> None:
 
-        printable = __class__._get(Printable)
-        alias = __class__._get(Alias)
-        platform = {'linux': Linux, 'win32': Windows}[sys.platform]
-        special = __class__._get(platform)
+        self._printable = __class__._get(Printable)
+        self._alias = __class__._get(Alias)
+        self._platform = {'linux': Linux, 'win32': Windows}[sys.platform]
+        self._special = __class__._get(self._platform)
 
-        self._keys: dict = printable | alias | special
+        self._keys: dict = self._printable | self._alias | self._special
+
+    def is_printable(self, key: Key) -> bool:
+        return key in self._printable.values()
 
     @staticmethod
     def _get(keygroup: type) -> dict[str, str]:

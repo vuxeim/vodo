@@ -5,6 +5,8 @@ if TYPE_CHECKING:
     from app import App
 
 from keyboard import key
+import colorman as cm
+from util import fprint
 
 
 class Fun:
@@ -39,4 +41,13 @@ class Fun:
 
     def quit(self):
         self.app.request_quit()
+
+    def input(self):
+        self.app.kb.input_mode()
+        fprint(cm.CURSOR.SHOW)
+
+    def normal(self):
+        self.app.kb.normal_mode()
+        self.app.buffer = ""
+        fprint(cm.CURSOR.HIDE)
 

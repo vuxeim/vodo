@@ -60,8 +60,11 @@ class TList:
     ACTIVE = cm.Palette(cm.FORE.BLACK, cm.BACK.WHITE)
     DONE = cm.Palette(cm.FORE.GREEN)
     NORMAL = cm.Palette(cm.FORE.YELLOW)
+    EDIT = cm.Palette(cm.FORE.MAGENTA, cm.STYLE.UNDERLINE)
 
     def __init__(self, pos: Vec2) -> None:
+        self.editing = False
+        self.edit_text = ""
         self.items: _List[_Entry]
         self.index: int = 0
         self.counter = 0
@@ -69,10 +72,19 @@ class TList:
         self.size: int = 0
         self.done: set[int] = set()
 
+    def current(self) -> _Entry:
+        return self.items[self.index]
+
     def load(self, file: str) -> None:
         with open(file, encoding='utf8') as f:
             self.items = _List(_Entry(line, done=False) for line in f.readlines() if line.strip())
         self.size = len(self.items)
+
+    def edit(self) -> None:
+        self.editing = True
+
+    def save_edit(self) -> None:
+        self.editing = False
 
     def render(self, screen: Screen) -> None:
         x,y = self.pos.as_tuple()
@@ -82,6 +94,8 @@ class TList:
 
     def _get_color(self, element: _Entry, index: int):
         if index == self.index:
+            if self.editing:
+                return TList.EDIT
             return TList.ACTIVE
         if element.done:
             return TList.DONE

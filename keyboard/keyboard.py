@@ -30,22 +30,26 @@ class Keyboard(threading.Thread):
         self._pressed[key] = True
 
     def is_pressed(self, key: str, once=True) -> bool:
-        val: bool = self._pressed.setdefault(key, False)
+        if self.capture:
+            return False
+        val = self._pressed.setdefault(key, False)
         if once:
             self._pressed[key] = False
         return val
 
-    def accumulate(self) -> None:
+    def input_mode(self) -> None:
         self.capture = True
 
-    def collect(self, delimeter: str | None = None) -> str | None:
-        while delimeter is not None and not self._buffer.endswith(delimeter):
-            yield
+    def fetch(self) -> str:
         buf = self._buffer
         self._buffer = ""
+        return buf
+
+    def normal_mode(self) -> None:
         self.capture = False
-        yield buf
+        self._buffer = ""
 
     def stop(self) -> None:
         """ Safely kills the keyboard thread """
         self._running = False
+
