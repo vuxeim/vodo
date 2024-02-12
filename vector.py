@@ -7,17 +7,6 @@ class Vec2:
     def __init__(self, x: int, y: int) -> None:
         self.x = x
         self.y = y
-
-    def xyiter(self, other: Vec2):
-
-        smaller_x = min(self.x, other.x)
-        smaller_y = min(self.y, other.y)
-        x_space = abs(self.x - other.x) + smaller_x
-        y_space = abs(self.y - other.y) + smaller_y
-
-        for x in range(smaller_x, x_space):
-            for y in range(smaller_y, y_space):
-                yield (x, y)
     
     def as_tuple(self) -> tuple[int, int]:
         return self.x, self.y

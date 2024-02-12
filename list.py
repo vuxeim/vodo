@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from screen import Screen
 import colorman as cm
+from vector import Vec2
 
 class _Entry:
     
@@ -60,11 +61,11 @@ class TList:
     DONE = cm.Palette(cm.FORE.GREEN)
     NORMAL = cm.Palette(cm.FORE.YELLOW)
 
-    def __init__(self, pos: tuple[int, int]) -> None:
+    def __init__(self, pos: Vec2) -> None:
         self.items: _List[_Entry]
         self.index: int = 0
         self.counter = 0
-        self.pos: tuple[int, int] = pos
+        self.pos: Vec2 = pos
         self.size: int = 0
         self.done: set[int] = set()
 
@@ -74,9 +75,9 @@ class TList:
         self.size = len(self.items)
 
     def render(self, screen: Screen) -> None:
-        x,y = self.pos
+        x,y = self.pos.as_tuple()
         for idx, item in enumerate(self.items):
-            screen.write((x, y), self._get_color(item, idx)(item.compose()))
+            screen.write(Vec2(x, y), self._get_color(item, idx)(item.compose()))
             y += 1
 
     def _get_color(self, element: _Entry, index: int):

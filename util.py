@@ -35,3 +35,4 @@ def nice_time(time) -> str:
 def clear_screen() -> None:
     sys.stdout.write("\x1b[2J")
     sys.stdout.flush()
+

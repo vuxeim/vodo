@@ -44,13 +44,11 @@ class Buffer:
         self._lines: list[_BufLine] = [_BufLine(size.x) for _ in range(size.y)]
 
     def color(self, pos: Vec2, code: str, size: int) -> None:
-        x, y = pos
-        self._lines[y].color(code, x, size)
+        self._lines[pos.y].color(code, pos.x, size)
 
     def write(self, pos: Vec2, text: str) -> None:
         """ Write given text to buffer at certain position """
-        x, y = pos
-        self._lines[y][x] = text
+        self._lines[pos.y][pos.x] = text
     
     def print_to_stdout(self) -> None:
         for num, line in enumerate(self._lines, start=1):
