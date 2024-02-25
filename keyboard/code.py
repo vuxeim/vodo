@@ -126,7 +126,6 @@ class Key:
                 keys[name] = getattr(keygroup, name)
         return keys
 
-
     def __getattr__(self, name: str) -> str:
         code = self._keys.get(name)
         if code is not None:

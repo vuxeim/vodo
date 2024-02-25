@@ -77,7 +77,10 @@ class PlatformWindows(Platform):
         self.msvcrt = msvcrt
 
     def getchars(self, blocking=True):
-        yield self.read()
+        if blocking:
+            yield self.read()
+        while self.msvcrt.kbhit():
+            yield self.read()
 
     def read(self, chars=1):
         buffer = bytes()
@@ -86,7 +89,7 @@ class PlatformWindows(Platform):
             # If the pressed key was a special function key,
             # this will return '\000' or '\xe0';
             # the next call will return the keycode.
-            # https://docs.python.org/3/library/msvcrt.html#msvcrt.getch 
+            # https://docs.python.org/3/library/msvcrt.html#msvcrt.getch
             if self.msvcrt.kbhit():
                 buffer += self.msvcrt.getch()
         return buffer.decode('windows-1252')
