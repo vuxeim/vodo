@@ -26,7 +26,7 @@ class Handler:
         self._register(key.UP, self.functions.move_up)
         self._register(key.SHIFT_DOWN, self.functions.rotate, kpass=True)
         self._register(key.SHIFT_UP, self.functions.rotate, kpass=True)
-        self._register(key.ENTER, self.functions.toggle)
+        self._register(key.ENTER, self.functions.toggle, kpass=True)
         self._register(key.E, self.functions.input, kpass=True)
         self._register(key.N, self.functions.input, kpass=True)
 
@@ -80,17 +80,9 @@ class _Functions:
         self.app.list.delete()
 
     def input(self, pressed_key: Key):
-        self.app.kb.input_mode()
-        self.app.editor.clear()
-        self.app.list.editing = True
+        self.app.editor.activate(clear=True)
         if pressed_key == key.E:
             self.app.editor.load(self.app.list.current().text)
         elif pressed_key == key.N:
             self.app.list.new()
-        fprint(cm.CURSOR.SHOW)
-
-    def normal(self):
-        self.app.kb.normal_mode()
-        self.app.list.editing = False
-        fprint(cm.CURSOR.HIDE)
 

@@ -11,8 +11,7 @@ import util
 
 class Layout:
 
-    def __init__(self, screen_size: Vec2, pos: Vec2 = Vec2.new()):
-        self.screen_size: Vec2 = screen_size
+    def __init__(self):
         self.buttons: list[Button] = ((
                 Button(key.N, '(n) New'),
                 Button(key.E, '(e) Edit'),

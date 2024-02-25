@@ -174,3 +174,14 @@ for color in dir(FORE):
         setattr(Color, color.lower(), Palette(getattr(FORE, color)))
         setattr(Color, light.lower(), Palette(getattr(FORE.LIGHT, color)))
 
+if __name__ == "__main__":
+    dbg = Palette(FORE.BLACK, BACK.WHITE)
+    size = 8
+    print("{}{}{}".format(''.rjust(size), 'normal'.ljust(size), 'light'.rjust(size)))
+    for color in dir(FORE):
+        if color.isupper() and color not in ('LIGHT', 'BRIGHT'):
+            normal_tile = Palette(getattr(BACK, color))(' '*size)
+            light_tile = Palette(getattr(BACK.LIGHT, color))(' '*size)
+            color_name = color.lower()
+            msg = "{}{}{}{}".format(color_name.rjust(size), normal_tile, light_tile, color_name)
+            print(msg)

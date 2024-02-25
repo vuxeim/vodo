@@ -5,6 +5,8 @@ if TYPE_CHECKING:
     from screen import Screen
 import colorman as cm
 from vector import Vec2
+from widget import Box
+from util import ASSERT
 
 class _Entry:
     
@@ -14,6 +16,10 @@ class _Entry:
     def __init__(self, content: str, done: bool):
         self.text: str = content.strip()
         self.done: bool = done
+
+    @property
+    def length(self) -> int:
+        return len(self.compose())
 
     def set(self, value: bool) -> None:
         self.done = value
@@ -57,23 +63,37 @@ class _List(list):
 
 class TList:
 
-    ACTIVE = cm.Palette(cm.FORE.BLACK, cm.BACK.WHITE)
+    NORMAL = cm.Palette(cm.FORE.LIGHT.YELLOW)
+    ACTIVE = NORMAL + cm.STYLE.REVERSE
     DONE = cm.Palette(cm.FORE.GREEN)
-    NORMAL = cm.Palette(cm.FORE.YELLOW)
 
-    def __init__(self, pos: Vec2) -> None:
+    def __init__(self, editor: Editor) -> None:
+        self.editor = editor
         self.file: str = ""
-        self.editing = False
         self.items: _List[_Entry] = _List()
         self.prev_index: int = 0
         self.index: int = 0
         self.counter = 0
-        self.pos: Vec2 = pos
+        self.pos: Vec2 = Vec2.new()
         self.size: Vec2 = Vec2.new()
-        self.done: set[int] = set()
+        self.box: Box = Box()
 
-    def calculate(self) -> None:
-        self.size = Vec2(max((len(entry.text) for entry in self.items) or 1), len(self.items))
+    def calculate(self, screen_size: Vec2) -> None:
+        # Center the todo list
+        if len(self.items) > 0:
+            length = max(entry.length for entry in self.items)
+            if self.editor.is_active():
+                length = max(self.editor.index, length)
+            self.size = Vec2(length, len(self.items))
+        else:
+            self.size = Vec2(0, 0)
+        self.pos = screen_size/2 - self.size/2
+
+        # Update the todo list border
+        padding = Vec2(1, 0)
+        size_offset = padding + Vec2(2, 2)
+        self.box.size = self.size + size_offset + padding
+        self.box.pos = self.pos - Vec2(1,1) - padding
 
     def current(self) -> _Entry:
         return self.items[self.index]
@@ -98,11 +118,11 @@ class TList:
         self.index = max(0, self.index-1)
 
     def render(self, screen: Screen) -> None:
-        x,y = self.pos.as_tuple()
+        self.box.render(screen)
         for idx, item in enumerate(self.items):
-            if not self.editing or idx != self.index:
-                screen.write(Vec2(x, y), self._get_color(item, idx)(item.compose()))
-            y += 1
+            if self.editor.is_active() and idx == self.index:
+                continue
+            screen.write(self.pos+Vec2(0, idx), self._get_color(item, idx)(item.compose()))
 
     def save(self) -> None:
         with open(self.file, 'wt') as f:
@@ -121,7 +141,7 @@ class TList:
             self.items[self.index].set(value)
 
     def rot(self, drc: str) -> None:
-        assert drc in (_List.DOWN, _List.UP)
+        ASSERT(drc in (_List.DOWN, _List.UP), "Direction must be UP or DOWN")
         off = {_List.DOWN: 1, _List.UP: -1}.get(drc)
         new_index = (self.index+off)%self.size.y
 
