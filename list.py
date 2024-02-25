@@ -78,7 +78,7 @@ class TList:
         self.size: Vec2 = Vec2.new()
         self.box: Box = Box()
 
-    def calculate(self, screen_size: Vec2) -> None:
+    def process(self, screen_size: Vec2) -> None:
         # Center the todo list
         if len(self.items) > 0:
             length = max(entry.length for entry in self.items)

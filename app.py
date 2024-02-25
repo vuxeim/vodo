@@ -1,6 +1,7 @@
 #https://stackoverflow.com/questions/35772001/how-to-handle-a-signal-sigint-on-a-windows-os-machine
 from __future__ import annotations
 from time import sleep, perf_counter
+from os import get_terminal_size
 
 import colorman as cm
 from colorman import Color
@@ -16,18 +17,16 @@ from util import fprint
 
 class App:
 
-    TARGET_TPS: int = 30
-
     def __init__(self) -> None:
         self.kb: Keyboard = Keyboard()
-        self.screen: Screen = Screen()
+        self.screen: Screen = Screen(lambda: Vec2(*get_terminal_size()))
         self.handler: Handler = Handler(self)
         self.layout: Layout = Layout()
         self.editor: Editor = Editor(self.kb)
         self.list: TList = TList(self.editor)
         self.buttons: list[Button] = self.layout.get_buttons()
         self.running: bool = True
-        self.tps: float = 1/self.TARGET_TPS
+        self.TPS: float = 1/30
         self.dt: float = 0.0
         self.prev_time: float = perf_counter()
 
@@ -40,7 +39,7 @@ class App:
             while self.running:
                 self.screen.clear()
 
-                wait = max(0, self.tps - self.dt)
+                wait = max(0, self.TPS - self.dt)
                 sleep(wait)
                 self.now = perf_counter()
                 self.dt = self.now - self.prev_time - wait
@@ -49,14 +48,14 @@ class App:
                 self.process()
                 self.render()
         except (KeyboardInterrupt, AssertionError) as e:
-            self.exit(e)
+            self._exit(e)
         else:
-            self.exit()
+            self._exit()
 
     def process(self) -> None:
         # Recalculate sizes
-        self.layout.calculate()
-        self.list.calculate(self.screen.size)
+        self.layout.process()
+        self.list.process(self.screen.size)
 
         # Remove current entry if the entry is empty
         if not self.editor.is_active():
@@ -71,7 +70,7 @@ class App:
 
         # Animate button press
         for btn in self.buttons:
-            btn.counter += self.tps+self.dt
+            btn.counter += self.TPS + self.dt
             if not self.editor.is_active():
                 if self.kb.is_pressed(btn.key, once=False):
                     btn.counter = 0
@@ -108,7 +107,7 @@ class App:
     def request_quit(self) -> None:
         self.running = False
 
-    def exit(self, e: BaseException | None = None) -> None:
+    def _exit(self, e: BaseException | None = None) -> None:
         self.list.save()
         fprint(cm.BUFFER.NORMAL+cm.CURSOR.SHOW)
         if isinstance(e, KeyboardInterrupt):

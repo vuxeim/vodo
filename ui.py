@@ -36,7 +36,7 @@ class Layout:
                 Button(key.SHIFT_DOWN, '(shift ↓) Move Down'),
                 ))
 
-    def calculate(self) -> None:
+    def process(self) -> None:
         size = [len(btns) for ln, btns in enumerate(self.buttons)]
 
         occup = {i: 0 for i in range(len(self.buttons))}

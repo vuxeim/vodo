@@ -1,17 +1,18 @@
-from os import get_terminal_size
 import re
+from typing import Callable
 
 
 from vector import Vec2
-import util
+from util import pprint
 
 
 class Screen:
 
     PATTERN = re.compile('\x1b.*?m')
 
-    def __init__(self) -> None:
-        self.size = Vec2(*get_terminal_size())
+    def __init__(self, get_size_fun: Callable) -> None:
+        self._get_size_fun: Callable = get_size_fun
+        self.size: Vec2 = self._get_size_fun()
         self._buf: Buffer = Buffer(self.size)
     
     def clear(self) -> None:
@@ -25,7 +26,7 @@ class Screen:
             self._buf.color(pos, code.pop(0), len(text))
     
     def update(self) -> None:
-        new_size = Vec2(*get_terminal_size())
+        new_size = self._get_size_fun()
         if new_size != self._buf._size:
             self._resize(new_size)
             self.size = new_size
@@ -52,7 +53,7 @@ class Buffer:
     
     def print_to_stdout(self) -> None:
         for num, line in enumerate(self._lines, start=1):
-            util.pprint(0, num, line.compile())
+            pprint(0, num, line.compile())
     
     def resize_by(self, diff: Vec2) -> None:
         
