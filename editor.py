@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from screen import Screen
-    from keyboard import Key, Keyboard
+    from keyboard import Keyboard
 from keyboard import key
 from vector import Vec2
 import colorman as cm
@@ -27,7 +27,7 @@ class Editor:
     def text(self):
         return "".join(self.content)
 
-    def handle(self, char: Key) -> None:
+    def handle(self, char: str) -> None:
         if char == key.DELETE:
             if self.index < self.last_index:
                 self.content.pop(self.index)
@@ -41,7 +41,7 @@ class Editor:
             self.index = min(self.last_index, self.index+1)
         elif char.isprintable():
             self.content.insert(self.index, char)
-            self.index+=1
+            self.index += 1
 
     def load(self, text: str) -> None:
         self.content = [*text]

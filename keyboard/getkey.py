@@ -8,6 +8,7 @@ import sys
 from .keynames import PLATFORM_KEYS
 
 class Platform:
+    KEYS = ''
 
     def __init__(self):
         self.keys = PLATFORM_KEYS[self.KEYS]
@@ -30,7 +31,7 @@ class Platform:
             char = self.getchar(blocking=False)
 
     def getchar(self, blocking=True):
-        for char in self.getchars(bloking=blocking):
+        for char in self.getchars(blocking=blocking):
             return char
         return None
 
@@ -75,7 +76,7 @@ class PlatformWindows(Platform):
         import msvcrt
         self.msvcrt = msvcrt
 
-    def getchars(self):
+    def getchars(self, blocking=True):
         yield self.read()
 
     def read(self, chars=1):

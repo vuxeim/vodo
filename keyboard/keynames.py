@@ -606,15 +606,6 @@ class Keys:
     def _is_key_name(self, name):
         return name == name.upper() and not name.startswith('_')
 
-
-def __make_escapes(codes):
-    escapes = set()
-    for code in codes:
-        for i in range(len(code)):
-            escapes.add(code[:i])
-    return escapes
-
-
 both = {
     AsciiKeys(),
     ControlKeys(),

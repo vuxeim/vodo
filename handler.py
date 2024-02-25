@@ -3,10 +3,10 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from app import App
+    from typing import Callable
 
 from keyboard import key
-import colorman as cm
-from util import fprint
+from util import ASSERT
 
 class Handler:
 
@@ -30,7 +30,7 @@ class Handler:
         self._register(key.E, self.functions.input, kpass=True)
         self._register(key.N, self.functions.input, kpass=True)
 
-    def _register(self, key: Key, fun: Callable, kpass: bool = False, once=True) -> None:
+    def _register(self, key: str, fun: Callable, kpass: bool = False, once=True) -> None:
         """
         Register callback to a key.
         kpass - pass pressed key as an argument
@@ -39,8 +39,8 @@ class Handler:
         self._reactions.update({key: (lambda: fun(key) if kpass else fun(), once)})
 
     def react(self) -> None:
-        for key, (fun, once) in self._reactions.items():
-            if self.app.kb.is_pressed(key, once=once):
+        for assigned_key, (fun, once) in self._reactions.items():
+            if self.app.kb.is_pressed(assigned_key, once=once):
                 fun()
 
 class _Functions:
@@ -57,15 +57,15 @@ class _Functions:
         index = self.app.list.index-1
         self.app.list.index = max(0, index)
 
-    def rotate(self, pressed_key: Key):
-        direction = {
-                key.SHIFT_K: 'up',
-                key.SHIFT_UP: 'up',
-                key.SHIFT_J: 'down',
-                key.SHIFT_DOWN: 'down'}.get(pressed_key)
+    def rotate(self, pressed_key: str):
+        direction = {key.SHIFT_K: 'up',
+                     key.SHIFT_UP: 'up',
+                     key.SHIFT_J: 'down',
+                     key.SHIFT_DOWN: 'down'}.get(pressed_key)
+        ASSERT(direction is not None, "Unsupported key", pressed_key)
         self.app.list.rot(direction)
-    
-    def toggle(self, pressed_key: Key):
+
+    def toggle(self, pressed_key: str):
         value = {key.D: True, key.U: False}.get(pressed_key)
         self.app.list.toggle(value=value)
 
@@ -79,7 +79,7 @@ class _Functions:
     def delete(self) -> None:
         self.app.list.delete()
 
-    def input(self, pressed_key: Key):
+    def input(self, pressed_key: str):
         self.app.editor.activate(clear=True)
         if pressed_key == key.E:
             self.app.editor.load(self.app.list.current().text)

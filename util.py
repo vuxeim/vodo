@@ -50,7 +50,7 @@ def ASSERT(condition: bool, *args) -> None:
     path, _, name = file.rpartition('\\')
     filename = path.replace('\\', sep) + sep + inf(name)
     msg = "\nASSERTION ERROR\n"
-    msg += filename+'\n'+function+"(), line "+inf(lineno)+":\n"
+    msg += filename+'\n'+function+"(), line "+inf(str(lineno))+":\n"
     msg += err('\n'.join(repr(arg) for arg in args))
     msg += '\n'
     raise AssertionError(msg)

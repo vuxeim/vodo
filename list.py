@@ -3,13 +3,14 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from screen import Screen
+    from editor import Editor
 import colorman as cm
 from vector import Vec2
 from widget import Box
 from util import ASSERT
 
 class _Entry:
-    
+
     fmt = '[{}] {}'
     marks = {False: ' ', True: 'x'}
 
@@ -27,11 +28,11 @@ class _Entry:
     def toggle(self) -> None:
         self.done = not self.done
 
-    def compose(self) -> None:
+    def compose(self) -> str:
         return self.fmt.format(self.marks[self.done], self.text)
 
 class _List(list):
-    
+
     DOWN = 'down'
     UP = 'up'
 
@@ -56,6 +57,7 @@ class _List(list):
     def swap(self, index: int, direction: str) -> None:
         """ Swap places element at index with the next element """
         off = {_List.DOWN: 1, _List.UP: -1}.get(direction)
+        ASSERT(off is not None, "Unsupported direction", direction)
         tempid = (index+off)%self.size
         temp = self[tempid]
         self[tempid] = self[index]
@@ -93,7 +95,7 @@ class TList:
         padding = Vec2(1, 0)
         size_offset = padding + Vec2(2, 2)
         self.box.size = self.size + size_offset + padding
-        self.box.pos = self.pos - Vec2(1,1) - padding
+        self.box.pos = self.pos - Vec2(1, 1) - padding
 
     def current(self) -> _Entry:
         return self.items[self.index]
@@ -141,7 +143,7 @@ class TList:
             self.items[self.index].set(value)
 
     def rot(self, drc: str) -> None:
-        ASSERT(drc in (_List.DOWN, _List.UP), "Direction must be UP or DOWN")
+        ASSERT(drc in (_List.DOWN, _List.UP), "Direction must be UP or DOWN", drc)
         off = {_List.DOWN: 1, _List.UP: -1}.get(drc)
         new_index = (self.index+off)%self.size.y
 

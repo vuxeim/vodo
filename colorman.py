@@ -4,7 +4,7 @@ from typing import Self
 
 try:
     from ctypes import (WinDLL, WinError,
-        LibraryLoader, byref, wintypes)
+                        LibraryLoader, byref, wintypes)
 except ImportError:
     # Not running on Windows
     WinDLL = None
@@ -166,13 +166,22 @@ class Palette:
         return len(self._list)
 
 class Color:
-    pass
-
-for color in dir(FORE):
-    if color.isupper() and color not in ('LIGHT', 'BRIGHT'):
-        light = 'LIGHT'+color
-        setattr(Color, color.lower(), Palette(getattr(FORE, color)))
-        setattr(Color, light.lower(), Palette(getattr(FORE.LIGHT, color)))
+    black = Palette(FORE.BLACK)
+    red = Palette(FORE.RED)
+    green = Palette(FORE.GREEN)
+    yellow = Palette(FORE.YELLOW)
+    blue = Palette(FORE.BLUE)
+    magenta = Palette(FORE.MAGENTA)
+    cyan = Palette(FORE.CYAN)
+    white = Palette(FORE.WHITE)
+    lightblack = Palette(FORE.LIGHT.BLACK)
+    lightred = Palette(FORE.LIGHT.RED)
+    lightgreen = Palette(FORE.LIGHT.GREEN)
+    lightyellow = Palette(FORE.LIGHT.YELLOW)
+    lightblue = Palette(FORE.LIGHT.BLUE)
+    lightmagenta = Palette(FORE.LIGHT.MAGENTA)
+    lightcyan = Palette(FORE.LIGHT.CYAN)
+    lightwhite = Palette(FORE.LIGHT.WHITE)
 
 if __name__ == "__main__":
     dbg = Palette(FORE.BLACK, BACK.WHITE)

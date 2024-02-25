@@ -1,7 +1,7 @@
 import threading
 
 from . import getkey
-from .code import key
+from .code import Key
 
 class Keyboard(threading.Thread):
 

@@ -1,4 +1,4 @@
-#https://stackoverflow.com/questions/35772001/how-to-handle-a-signal-sigint-on-a-windows-os-machine
+# https://stackoverflow.com/questions/35772001/how-to-handle-a-signal-sigint-on-a-windows-os-machine
 from __future__ import annotations
 from time import sleep, perf_counter
 from os import get_terminal_size
@@ -10,7 +10,7 @@ from screen import Screen
 from handler import Handler
 from ui import Layout
 from list import TList
-from widget import Button, Text
+from widget import Button
 from editor import Editor
 from vector import Vec2
 from util import fprint
