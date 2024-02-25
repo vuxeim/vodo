@@ -12,7 +12,7 @@ from util import ASSERT
 class _Entry:
 
     fmt = '[{}] {}'
-    marks = {False: ' ', True: 'x'}
+    marks = {False: '_', True: '\u2713'}
 
     def __init__(self, content: str, done: bool):
         self.text: str = content.strip()
