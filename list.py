@@ -127,7 +127,7 @@ class TList:
             screen.write(self.pos+Vec2(0, idx), self._get_color(item, idx)(item.compose()))
 
     def save(self) -> None:
-        with open(self.file, 'wt') as f:
+        with open(self.file, 'wt', encoding='utf8') as f:
             f.write('\n'.join(('x'*entry.done)+';'+entry.text for entry in self.items))
 
     def _get_color(self, element: _Entry, index: int):
