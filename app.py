@@ -22,7 +22,7 @@ class App:
         self.kb: Keyboard = Keyboard()
         self.screen: Screen = Screen()
         self.handler: Handler = Handler(self)
-        self.layout: Layout = Layout(self.screen.size)
+        self.layout: Layout = Layout()
         self.editor: Editor = Editor(self.kb)
         self.list: TList = TList(self.editor)
         self.buttons: list[Button] = self.layout.get_buttons()
