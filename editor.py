@@ -19,6 +19,11 @@ class Editor:
         self.index: int = self.last_index
         self._active: bool = False
 
+    def process(self) -> None:
+        # pos = self.pos+Vec2(self.index+1, 1)
+        pos = self.pos+Vec2(self.index, 0)
+        fprint(cm.CURSOR(*pos.as_tuple()))
+
     @property
     def last_index(self) -> int:
         return len(self.content)

@@ -12,6 +12,9 @@ class Layout:
 
     def __init__(self):
         self.buttons: tuple[tuple[Button, ...], ...] = ((
+                    Button(key.TAB, '(tab) Switch tab'),
+                ),
+                (
                     Button(key.N, '(n) New'),
                     Button(key.E, '(e) Edit'),
                     Button(key.D, '(d) Delete'),
