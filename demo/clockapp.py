@@ -1,5 +1,6 @@
 from time import perf_counter, sleep, localtime
 from os import get_terminal_size
+from sys import argv
 
 from keyboard import Keyboard, key
 from screen import Screen
@@ -24,6 +25,9 @@ class App:
         # Widgets
         self.clock = Clock("center,center", localtime)
         self.clock.color = cm.Palette(cm.STYLE.BOLD, cm.FORE.LIGHT.MAGENTA)
+        if len(argv) > 1:
+            if argv[1] == "big":
+                self.clock.style = "big"
 
     def request_quit(self) -> None:
         self._running = False

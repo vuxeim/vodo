@@ -69,18 +69,43 @@ class PositionedText(Text):
 
 class Clock(PositionedText):
 
+    _b = r"""
+     ,---.   ,--.  ,---. ,----.   ,---.,-----.  ,--. ,-----. ,---.  ,---.     \
+    /     \ /   | '.-.  \'.-.  | /    ||  .--' /  .' '--,  /|  o  ||  () \.--.
+    |  o  | `|  |  .-' .'  .' < /  '  |'--. `\|  .-.  .'  / .'   '.`._   |'--'
+    \     /  |  | /   '-./'-'  |'--|  |.--'  /\   o |/   /  |  o  |  _> / .--.
+     `---'   `--' '-----'`----'    `--'`----'  `---' `--'    `---'  `--'  '--'
+    """
+
+    numbers = ["\n".join([l[7*x:7*x+7] for i, l in enumerate(_b.split("\n"))]) for x in range(10)]
+    _sep = "\n".join(l[70:74] for i, l in enumerate(_b.split("\n")))
+    numbers.append(_sep)
+
     def __init__(self, position: str, get_time_func: Callable) -> None:
         super().__init__(text="", position=position)
         self.offset = Vec2.new()
         self.get_time_func = get_time_func
+        self.style = "normal"
+        self.data: list[str] = []
+        self.buffer
 
     def update(self) -> None:
-        now = self.get_time_func()
-        self.text = ":".join(map(lambda i: str(i).zfill(2), (now.tm_hour, now.tm_min, now.tm_sec)))
+        t = self.get_time_func()
+        if self.style == "normal":
+            self.text = ":".join(map(lambda i: str(i).zfill(2), (t.tm_hour, t.tm_min, t.tm_sec)))
+        elif self.style == "big":
+            self.data = ['#                #', "# -------------- #", "4444444444444"]
 
     def update_position(self, screen_size: Vec2) -> None:
         super().update_position(screen_size)
         self.pos += self.offset
+
+    def render(self, screen: Screen) -> None:
+        if self.style == "normal":
+            return super().render(screen)
+        elif self.style == "big":
+            for i, line in enumerate(self.data):
+                screen.write(self.pos+Vec2(-10, i), self.color(line))
 
 class Box:
 
