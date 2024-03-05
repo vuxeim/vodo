@@ -52,6 +52,13 @@ class MyApp(_App):
         super()._render()
 
 def main():
+    filename = "tasks"
+
+    try:
+        open(filename).close()
+    except FileNotFoundError:
+        open(filename, "w").close()
+
     app = MyApp()
     app.run()
 
