@@ -20,8 +20,7 @@ class Editor:
         self._active: bool = False
 
     def process(self) -> None:
-        # pos = self.pos+Vec2(self.index+1, 1)
-        pos = self.pos+Vec2(self.index, 0)
+        pos = self.pos+Vec2(self.index+1, 1)
         fprint(cm.CURSOR(*pos.as_tuple()))
 
     @property
