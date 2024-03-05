@@ -3,7 +3,7 @@ from .list import TList
 from vector import Vec2
 from colorman import Color
 from keyboard import key
-from widget import Button
+from widgets import Button
 from .handler import Handler
 from .ui import Layout
 

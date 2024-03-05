@@ -5,7 +5,7 @@ if TYPE_CHECKING:
     from screen import Screen
 
 from keyboard import key
-from widget import Button
+from widgets import Button
 from vector import Vec2
 
 class Layout:

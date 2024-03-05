@@ -2,7 +2,7 @@ from time import localtime
 
 from stages.stage import Stage
 from keyboard import key
-from widget import PositionedText, Clock
+from widgets import PositionedText, Clock
 from vector import Vec2
 import colorman as cm
 
@@ -20,15 +20,15 @@ class MainMenu(Stage):
                                      position="bottom,left",
                                      color=cm.Palette(cm.FORE.RED, cm.STYLE.BOLD),),
                       )
-        self.clock = Clock("center,center", localtime)
-        self.clock.color = cm.Color.green
-        self.clock.offset = Vec2(0, -2)
+        self.clock = Clock("top,center", localtime)
+        self.clock.style = "big"
+        self.clock.color = cm.Palette(cm.FORE.LIGHT.RED, cm.STYLE.BOLD)
+        self.clock.offset = Vec2(-self.clock.size.x//2, 4)
 
     def process(self) -> None:
-        self.clock.update()
-        self.clock.update_position(self.screen.size)
+        self.clock.process(self.screen.size)
         for text in self.texts:
-            text.update_position(self.screen.size)
+            text.process(self.screen.size)
             text.counter += self.app._TPS + self.app.dt
             if text.counter > text.blink_time:
                 text.counter = 0

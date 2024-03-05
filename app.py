@@ -7,50 +7,23 @@ import colorman as cm
 from colorman import Color
 from keyboard import Keyboard
 from screen import Screen
-from editor import Editor
 from vector import Vec2
-from util import fprint, ASSERT
-
-from stages import Stage
-from stages import MainMenu
-from stages import TodoStage
-from stages import PasswordManager
-from stages import TankeStelle
+from util import fprint
 
 class App:
 
     def __init__(self) -> None:
         self.kb: Keyboard = Keyboard()
         self.screen: Screen = Screen(lambda: Vec2(*get_terminal_size()))
-        self.editor: Editor = Editor(self.kb)
+
         self._running: bool = True
         self._TPS: float = 1/30
         self.dt: float = 0.0
         self._prev_time: float = perf_counter()
         self._now: float = 0.0
 
-        class _stages:
-            mainmenu = MainMenu(self)
-            todo = TodoStage(self)
-            passmgr = PasswordManager(self)
-            tanke = TankeStelle(self)
-
-        self._stages = _stages
-        self._stage: Stage = self._stages.mainmenu
-
     def request_quit(self) -> None:
-        self._stage.exit()
         self._running = False
-
-    def switch_stage(self, new_stage: str) -> None:
-        stage = {"mainmenu": self._stages.mainmenu,
-                 "todo": self._stages.todo,
-                 "passmgr": self._stages.passmgr,
-                 "tanke": self._stages.tanke}.get(new_stage)
-        self._stage.exit()
-        ASSERT(isinstance(stage, Stage), f"Unknown stage name '{new_stage}'")
-        self._stage = stage
-        self._stage.process()
 
     def run(self) -> None:
         fprint(cm.BUFFER.ALT+cm.CURSOR.HIDE)
@@ -72,16 +45,9 @@ class App:
             self._exit()
 
     def _process(self) -> None:
-        self._stage.process()
-        self.editor.process()
-
-        # Consume all the other button press events
-        if not self.editor.is_active():
-            self.kb.clear()
+        pass
 
     def _render(self) -> None:
-        self._stage.render()
-        self.editor.render(self.screen)
         self.screen.update()
         self.screen.flush()
 

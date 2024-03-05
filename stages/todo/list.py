@@ -6,7 +6,7 @@ if TYPE_CHECKING:
     from editor import Editor
 import colorman as cm
 from vector import Vec2
-from widget import Box
+from widgets import Box
 from util import ASSERT
 
 class _Entry:
