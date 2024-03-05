@@ -184,7 +184,7 @@ class Color:
     lightwhite = Palette(FORE.LIGHT.WHITE)
 
 if __name__ == "__main__":
-    dbg = Palette(FORE.BLACK, BACK.WHITE)
+    # Run: python -m colorman
     size = 8
     print("{}{}{}".format(''.rjust(size), 'normal'.ljust(size), 'light'.rjust(size)))
     for color in dir(FORE):
